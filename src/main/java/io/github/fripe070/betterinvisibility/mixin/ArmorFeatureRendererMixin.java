@@ -8,6 +8,7 @@ import net.minecraft.client.render.entity.feature.ArmorFeatureRenderer;
 import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -21,6 +22,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import static io.github.fripe070.betterinvisibility.Betterinvisibility.CAMOUFLAGE;
 import static net.minecraft.entity.effect.StatusEffects.INVISIBILITY;
 
 @Mixin(ArmorFeatureRenderer.class)
@@ -28,6 +30,7 @@ public abstract class ArmorFeatureRendererMixin<T extends LivingEntity, A extend
     private T entity;
     @Shadow
     protected abstract Identifier getArmorTexture(ArmorItem item, boolean legs, @Nullable String overlay);
+    private float transparency = 0.2f;
 
     @Inject(
             method = "renderArmor",
@@ -49,7 +52,6 @@ public abstract class ArmorFeatureRendererMixin<T extends LivingEntity, A extend
         return original;
     }
 
-
     @Inject(
             method = "renderArmorParts",
             at = @At(value = "HEAD"),
@@ -60,6 +62,12 @@ public abstract class ArmorFeatureRendererMixin<T extends LivingEntity, A extend
             if (player.hasStatusEffect(INVISIBILITY)) {
                 VertexConsumer vertexConsumer = ItemRenderer.getDirectItemGlintConsumer(vertexConsumers, RenderLayer.getEntityTranslucent(getArmorTexture(item, legs, overlay)), false, usesSecondLayer);
                 model.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV, red, green, blue, 0.1f);
+                ci.cancel();
+            } else if (EnchantmentHelper.getLevel(CAMOUFLAGE, player.getEquippedStack(EquipmentSlot.CHEST)) > 0) {
+                transparency = (float) Math.min(1.0f, Math.max(0.16f, Math.max(transparency, player.getVelocity().length() * 2f) - 0.0001f));
+
+                VertexConsumer vertexConsumer = ItemRenderer.getDirectItemGlintConsumer(vertexConsumers, RenderLayer.getEntityTranslucent(getArmorTexture(item, legs, overlay)), false, usesSecondLayer);
+                model.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV, red, green, blue, transparency);
                 ci.cancel();
             }
         }
