@@ -19,7 +19,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import static io.github.fripe070.betterinvisibility.Betterinvisibility.CAMOUFLAGE;
@@ -38,18 +37,6 @@ public abstract class ArmorFeatureRendererMixin<T extends LivingEntity, A extend
     )
     private void captureContext(MatrixStack matrices, VertexConsumerProvider vertexConsumers, T entity, EquipmentSlot armorSlot, int light, A model, CallbackInfo ci) {
         this.entity = entity;
-    }
-
-    @ModifyVariable(
-            method = "renderArmor",
-            at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/item/ItemStack;hasGlint()Z"),
-            index = 10
-    )
-    private boolean toggleGlint(boolean original) {
-        if (entity instanceof PlayerEntity player) {
-            return false;
-        }
-        return original;
     }
 
     @Inject(
