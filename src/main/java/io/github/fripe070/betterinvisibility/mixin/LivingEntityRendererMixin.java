@@ -10,7 +10,6 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArgs;
@@ -31,12 +30,10 @@ public abstract class LivingEntityRendererMixin extends EntityRenderer<LivingEnt
             method = "render",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/model/EntityModel;render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumer;IIFFFF)V")
     )
-    private void renderColorChangedModel(Args args, LivingEntity livingEntity, float f, float tickDelta, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i) {
-        if (livingEntity instanceof PlayerEntity player) {
-            if (EnchantmentHelper.getLevel(CAMOUFLAGE, player.getEquippedStack(EquipmentSlot.CHEST)) > 0) {
-                transparency = (float) Math.min(1.0f, Math.max(0.06f, Math.max(transparency, player.getVelocity().length() * 2f) - 0.0001f));
-                args.set(7, transparency);
-            }
+    private void entityTransparency(Args args, LivingEntity livingEntity, float f, float tickDelta, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i) {
+        if (EnchantmentHelper.getLevel(CAMOUFLAGE, livingEntity.getEquippedStack(EquipmentSlot.CHEST)) > 0) {
+            transparency = (float) Math.min(1.0f, Math.max(0.06f, Math.max(transparency, livingEntity.getVelocity().length() * 2f) - 0.0001f));
+            args.set(7, transparency);
         }
     }
 }

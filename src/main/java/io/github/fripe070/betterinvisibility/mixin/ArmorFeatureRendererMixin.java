@@ -11,7 +11,6 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
@@ -45,18 +44,16 @@ public abstract class ArmorFeatureRendererMixin<T extends LivingEntity, A extend
             cancellable = true
     )
     private void armorTransparency(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, ArmorItem item, boolean usesSecondLayer, A model, boolean legs, float red, float green, float blue, String overlay, CallbackInfo ci) {
-        if (entity instanceof PlayerEntity player) {
-            if (player.hasStatusEffect(INVISIBILITY)) {
-                VertexConsumer vertexConsumer = ItemRenderer.getDirectItemGlintConsumer(vertexConsumers, RenderLayer.getEntityTranslucent(getArmorTexture(item, legs, overlay)), false, usesSecondLayer);
-                model.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV, red, green, blue, 0.06f);
-                ci.cancel();
-            } else if (EnchantmentHelper.getLevel(CAMOUFLAGE, player.getEquippedStack(EquipmentSlot.CHEST)) > 0) {
-                transparency = (float) Math.min(1.0f, Math.max(0.06f, Math.max(transparency, player.getVelocity().length() * 2f) - 0.0001f));
+        if (entity.hasStatusEffect(INVISIBILITY)) {
+            VertexConsumer vertexConsumer = ItemRenderer.getDirectItemGlintConsumer(vertexConsumers, RenderLayer.getEntityTranslucent(getArmorTexture(item, legs, overlay)), false, usesSecondLayer);
+            model.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV, red, green, blue, 0.06f);
+            ci.cancel();
+        } else if (EnchantmentHelper.getLevel(CAMOUFLAGE, entity.getEquippedStack(EquipmentSlot.CHEST)) > 0) {
+            transparency = (float) Math.min(1.0f, Math.max(0.06f, Math.max(transparency, entity.getVelocity().length() * 2f) - 0.0001f));
 
-                VertexConsumer vertexConsumer = ItemRenderer.getDirectItemGlintConsumer(vertexConsumers, RenderLayer.getEntityTranslucent(getArmorTexture(item, legs, overlay)), false, usesSecondLayer);
-                model.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV, red, green, blue, transparency);
-                ci.cancel();
-            }
+            VertexConsumer vertexConsumer = ItemRenderer.getDirectItemGlintConsumer(vertexConsumers, RenderLayer.getEntityTranslucent(getArmorTexture(item, legs, overlay)), false, usesSecondLayer);
+            model.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV, red, green, blue, transparency);
+            ci.cancel();
         }
     }
 }
