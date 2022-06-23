@@ -29,7 +29,7 @@ public abstract class ArmorFeatureRendererMixin<T extends LivingEntity, A extend
     private T entity;
     @Shadow
     protected abstract Identifier getArmorTexture(ArmorItem item, boolean legs, @Nullable String overlay);
-    private float transparency = 0.2f;
+    private float transparency = 0.06f;
 
     @Inject(
             method = "renderArmor",
@@ -48,10 +48,10 @@ public abstract class ArmorFeatureRendererMixin<T extends LivingEntity, A extend
         if (entity instanceof PlayerEntity player) {
             if (player.hasStatusEffect(INVISIBILITY)) {
                 VertexConsumer vertexConsumer = ItemRenderer.getDirectItemGlintConsumer(vertexConsumers, RenderLayer.getEntityTranslucent(getArmorTexture(item, legs, overlay)), false, usesSecondLayer);
-                model.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV, red, green, blue, 0.1f);
+                model.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV, red, green, blue, 0.06f);
                 ci.cancel();
             } else if (EnchantmentHelper.getLevel(CAMOUFLAGE, player.getEquippedStack(EquipmentSlot.CHEST)) > 0) {
-                transparency = (float) Math.min(1.0f, Math.max(0.16f, Math.max(transparency, player.getVelocity().length() * 2f) - 0.0001f));
+                transparency = (float) Math.min(1.0f, Math.max(0.06f, Math.max(transparency, player.getVelocity().length() * 2f) - 0.0001f));
 
                 VertexConsumer vertexConsumer = ItemRenderer.getDirectItemGlintConsumer(vertexConsumers, RenderLayer.getEntityTranslucent(getArmorTexture(item, legs, overlay)), false, usesSecondLayer);
                 model.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV, red, green, blue, transparency);
